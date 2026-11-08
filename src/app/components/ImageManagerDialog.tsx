@@ -295,7 +295,7 @@ export function ImageManagerDialog({
               </div>
             ) : (
               <div class="image-manager-empty">
-                当前 Markdown 没有本地图片引用。远程图片会直接按原始链接渲染，无需在此绑定。
+                当前 Markdown 没有本地图片引用。远程图片需在编辑区允许加载，无需在此绑定。
               </div>
             )}
           </section>

@@ -12,6 +12,7 @@ import {
   resolveImageReference,
   type ImageResourceIndex,
 } from '../resources/image-resources';
+import { safeLinkHref } from '../resources/safe-link';
 
 function mathHtml(expression: string, displayMode: boolean): string {
   try {
@@ -35,8 +36,12 @@ export function InlineContent({ nodes }: { nodes: Inline[] }) {
             return <em key={key}><InlineContent nodes={node.children} /></em>;
           case 'delete':
             return <del key={key}><InlineContent nodes={node.children} /></del>;
-          case 'link':
-            return <a key={key} href={node.url} target="_blank" rel="noreferrer"><InlineContent nodes={node.children} /></a>;
+          case 'link': {
+            const href = safeLinkHref(node.url);
+            return href
+              ? <a key={key} href={href} target="_blank" rel="noopener noreferrer"><InlineContent nodes={node.children} /></a>
+              : <span key={key}><InlineContent nodes={node.children} /></span>;
+          }
           case 'inlineCode':
             return <code key={key} class="inline-code">{node.value}</code>;
           case 'inlineMath':
@@ -106,7 +111,9 @@ function ImageBlock({ block, resources }: { block: Extract<Block, { kind: 'image
   const resolution = resolveImageReference(block.url, resources);
   const caption = block.caption || block.alt;
   if (!resolution.source) {
-    const message = resolution.state === 'ambiguous'
+    const message = resolution.state === 'remote'
+      ? '远程图片尚未加载。可在编辑区允许当前文档的远程图片。'
+      : resolution.state === 'ambiguous'
       ? '检测到多个同名或同路径候选图片。请在“管理图片”中选择“自动补齐（选择图片所在文件夹）”，然后重新选择文章根目录。'
       : '未找到本地图片。请在“管理图片”中选择“自动补齐（选择图片所在文件夹）”，或手动添加图片。';
     return <div class="image-missing">{message} <code>{block.url}</code></div>;

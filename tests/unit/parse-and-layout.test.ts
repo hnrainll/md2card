@@ -11,6 +11,27 @@ import {
   resolveImageReference,
   summarizeImageBindings,
 } from '../../src/resources/image-resources';
+import { safeLinkHref } from '../../src/resources/safe-link';
+
+describe('Markdown 外部地址安全', () => {
+  it('只把安全协议和相对路径渲染为可点击链接', () => {
+    expect(safeLinkHref('https://example.com/path')).toBe('https://example.com/path');
+    expect(safeLinkHref('./notes.md')).toBe('./notes.md');
+    expect(safeLinkHref('mailto:hello@example.com')).toBe('mailto:hello@example.com');
+    expect(safeLinkHref('javascript:alert(1)')).toBeUndefined();
+    expect(safeLinkHref('java\tscript:alert(1)')).toBeUndefined();
+    expect(safeLinkHref('data:text/html,<script>alert(1)</script>')).toBeUndefined();
+  });
+
+  it('远程图片须逐地址授权后才提供浏览器加载源', () => {
+    const url = 'https://example.com/image.png';
+    const index = buildImageResourceIndex([], {});
+    expect(resolveImageReference(url, index)).toEqual({ state: 'remote', source: undefined });
+    expect(summarizeImageBindings([url], index).missing).toEqual([url]);
+    index.allowedRemoteImageUrls = new Set([url]);
+    expect(resolveImageReference(url, index)).toEqual({ state: 'remote', source: url });
+  });
+});
 
 const fixture = readFileSync(resolve(import.meta.dirname, '../fixtures/technical.md'), 'utf8');
 const completeExample = readFileSync(
@@ -267,13 +288,14 @@ describe('本地图片文件夹绑定', () => {
     });
   });
 
-  it('汇总 Markdown 图片的缺失状态，并保留远程图片', () => {
+  it('汇总 Markdown 图片的缺失状态，并在授权后保留远程图片', () => {
     const article = parseMarkdown('# 图片\n\n![封面](images/cover.png)\n\n![结构](images/diagram.png)\n\n> ![远程](https://example.com/remote.png)');
     const urls = articleImageUrls(article);
     const index = buildImageResourceIndex(
       [{ id: 'cover', name: 'cover.png', paths: ['post/images/cover.png'] }],
       { cover: 'blob:cover' },
     );
+    index.allowedRemoteImageUrls = new Set(['https://example.com/remote.png']);
     expect(urls).toEqual(['images/cover.png', 'images/diagram.png', 'https://example.com/remote.png']);
     expect(summarizeImageBindings(urls, index)).toEqual({
       total: 3,

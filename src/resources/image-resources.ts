@@ -22,6 +22,7 @@ export interface ImageResourceIndex {
   objectUrlsByImageId: Record<string, string>;
   overrides: Record<string, string>;
   ambiguousPaths: ReadonlySet<string>;
+  allowedRemoteImageUrls?: ReadonlySet<string>;
 }
 
 export interface ImageBindingSummary {
@@ -130,7 +131,9 @@ export function resolveImageReference(
   url: string,
   index: ImageResourceIndex,
 ): ImageResolution {
-  if (isRemoteImageUrl(url)) return { state: 'remote', source: url };
+  if (isRemoteImageUrl(url)) {
+    return { state: 'remote', source: index.allowedRemoteImageUrls?.has(url) ? url : undefined };
+  }
   const aliases = pathAliases(url);
   const override = index.overrides[normalizeImagePath(url)];
   if (override && index.objectUrlsByImageId[override]) {
@@ -187,8 +190,10 @@ export function summarizeImageBindings(
   };
   for (const url of urls) {
     const resolution = resolveImageReference(url, index);
-    if (resolution.state === 'matched' || resolution.state === 'remote') {
+    if (resolution.state === 'matched' || (resolution.state === 'remote' && resolution.source)) {
       summary.matched += 1;
+    } else if (resolution.state === 'remote') {
+      summary.missing.push(url);
     } else if (resolution.state === 'ambiguous') {
       summary.ambiguous.push(url);
     } else {

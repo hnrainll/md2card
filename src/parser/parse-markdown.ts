@@ -142,7 +142,7 @@ function toBlock(node: MdNode, index: number, diagnostics: Diagnostic[], suffix 
       return { id, kind: 'table', align: node.align ?? [], rows };
     }
     case 'image':
-      diagnostics.push({ level: 'info', message: '本地图片会优先按导入文件夹中的相对路径绑定；远程图片需要允许浏览器读取。', blockId: id });
+      diagnostics.push({ level: 'info', message: '本地图片会优先按导入文件夹中的相对路径绑定；远程图片需在编辑区允许加载。', blockId: id });
       return {
         id,
         kind: 'image',

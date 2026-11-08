@@ -69,6 +69,9 @@ export function useExportWorkflow({
         throw new Error("Markdown 存在解析错误，请先处理页面提示。");
       const cards = readCardNodes(pagePlan, cardRefs);
       if (!cards.length) throw new Error("卡片仍在生成，请稍后重试。");
+      if (cards.some((card) => card.querySelector('.image-missing'))) {
+        throw new Error('有图片尚未绑定或允许加载，请先检查预览。');
+      }
       if ("fonts" in document) await document.fonts.ready;
       await Promise.all(
         cards.flatMap((card) =>

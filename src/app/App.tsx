@@ -1,5 +1,6 @@
 import {
   useEffect,
+  useMemo,
   useRef,
   useState,
 } from "preact/hooks";
@@ -23,6 +24,7 @@ import { useExportWorkflow } from "./hooks/useExportWorkflow";
 import { useImageResources } from "./hooks/useImageResources";
 import { usePreviewWorkspace } from "./hooks/usePreviewWorkspace";
 import { useUiTheme } from "./hooks/useUiTheme";
+import { articleImageUrls, isRemoteImageUrl } from "../resources/image-resources";
 import {
   SettingsCategoryNav,
   type SettingsCategory,
@@ -77,6 +79,7 @@ export function App() {
   const [config, setConfig] = useState<LayoutConfig>(DEFAULT_CONFIG);
   const [titleOverride, setTitleOverride] = useState("");
   const [sourceFileName, setSourceFileName] = useState("");
+  const [allowedRemoteImageUrls, setAllowedRemoteImageUrls] = useState<ReadonlySet<string>>(new Set());
   const [dragging, setDragging] = useState(false);
   const [activePane, setActivePane] = useState<"editor" | "settings">("editor");
   const [mobilePane, setMobilePane] = useState<MobilePane>("editor");
@@ -178,6 +181,15 @@ export function App() {
     invalidateLayout,
     reportStatus: setExportState,
   });
+  const remoteImageUrls = useMemo(
+    () => articleImageUrls(article).filter(isRemoteImageUrl),
+    [article],
+  );
+  const remoteImagesAllowed = remoteImageUrls.length > 0 && remoteImageUrls.every((url) => allowedRemoteImageUrls.has(url));
+  const renderingResources = useMemo(
+    () => ({ ...resources, allowedRemoteImageUrls }),
+    [resources, allowedRemoteImageUrls],
+  );
   const previewDiagnosticLabel = exportHasErrors
     ? "有排版错误"
     : diagnosticWarningCount > 0
@@ -248,6 +260,7 @@ export function App() {
     }
     const nextMarkdown = await file.text();
     setMarkdown(nextMarkdown);
+    setAllowedRemoteImageUrls(new Set());
     setSourceFileName(file.name);
     setTitleOverride("");
     invalidateLayout();
@@ -272,6 +285,7 @@ export function App() {
       return;
 
     setMarkdown("");
+    setAllowedRemoteImageUrls(new Set());
     setTitleOverride("");
     setSourceFileName("");
     invalidateLayout();
@@ -331,6 +345,12 @@ export function App() {
             localImageCount={localImages.length}
             localImageReferences={localImageReferences}
             imageBindingSummary={imageBindingSummary}
+            remoteImageCount={remoteImageUrls.length}
+            remoteImagesAllowed={remoteImagesAllowed}
+            onToggleRemoteImages={() => {
+              setAllowedRemoteImageUrls(remoteImagesAllowed ? new Set() : new Set(remoteImageUrls));
+              invalidateLayout();
+            }}
             onClear={clearArticle}
             onImportMarkdown={(file) => void loadFile(file)}
             onTitleChange={setTitleOverride}
@@ -409,7 +429,7 @@ export function App() {
           articleName={articleName}
           pagePlan={pagePlan}
           config={config}
-          resources={resources}
+          resources={renderingResources}
           previewStyle={previewStyle}
           effectiveColumns={effectivePreviewColumns}
           columnLimit={previewColumnLimit}
@@ -431,7 +451,7 @@ export function App() {
         article={article}
         config={config}
         cover={cover}
-        resources={resources}
+        resources={renderingResources}
         onMeasure={acceptMeasure}
       />
       {imageManagerOpen && (

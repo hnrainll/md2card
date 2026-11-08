@@ -15,6 +15,9 @@ export function EditorPane({
   localImageCount,
   localImageReferences,
   imageBindingSummary,
+  remoteImageCount,
+  remoteImagesAllowed,
+  onToggleRemoteImages,
   onClear,
   onImportMarkdown,
   onTitleChange,
@@ -33,6 +36,9 @@ export function EditorPane({
   localImageCount: number;
   localImageReferences: string[];
   imageBindingSummary: ImageBindingSummary;
+  remoteImageCount: number;
+  remoteImagesAllowed: boolean;
+  onToggleRemoteImages: () => void;
   onClear: () => void;
   onImportMarkdown: (file: File | undefined) => void;
   onTitleChange: (value: string) => void;
@@ -73,6 +79,14 @@ export function EditorPane({
       <p class="editor-drop-note">
         可直接拖入 Markdown；检测到本地图片引用时，会引导你按需导入附件。
       </p>
+      {remoteImageCount > 0 && (
+        <div class="editor-drop-note" role="status">
+          当前文档有 {remoteImageCount} 个远程图片地址。加载后，浏览器会连接图片来源站点。
+          <button type="button" onClick={onToggleRemoteImages} aria-pressed={remoteImagesAllowed}>
+            {remoteImagesAllowed ? '停止加载远程图片' : '加载远程图片'}
+          </button>
+        </div>
+      )}
       <div class="article-name-control">
         <label>
           文章名（可选）
