@@ -238,6 +238,40 @@ md2card/
 
 ## 部署与开发
 
+### Makefile 与服务器部署
+
+项目提供与 `math-ce` 相同的 SSH + rsync 部署方式，上传 Vite 生成的 `dist/`。需要本机安装 Node.js、npm、make、rsync 和 SSH，并已配置目标服务器的登录权限和静态网站目录。
+
+```bash
+make help            # 查看命令
+make install         # npm ci，安装锁定版本依赖
+make dev             # 启动开发服务
+make check           # 测试、类型检查并构建
+make preview         # 预览生产构建
+
+cp .env.deploy.example .env.deploy
+```
+
+编辑 `.env.deploy`，填写服务器账号、地址、网站绝对路径和 SSH 端口：
+
+```makefile
+DEPLOY_TARGET = user@host:/var/www/md2card/
+SSH_PORT = 22
+```
+
+`.env.deploy` 已被 Git 忽略。部署目标目录应为本站专用目录，网站服务器应以该目录为静态根目录，并能访问 `/app/` 工作台。
+
+```bash
+make deploy-dry-run  # 安装、检查、构建并预演上传，不拉取代码、不上传文件
+make deploy          # 从当前分支上游快进拉取、安装、检查、构建并上传
+make upload-dry-run  # 仅预览现有 dist/ 的上传差异
+make upload          # 仅上传现有 dist/
+```
+
+也可通过命令行覆盖配置：`make upload DEPLOY_TARGET=user@host:/var/www/md2card/ SSH_PORT=2222`。rsync 不使用 `--delete`，因此不会删除服务器上已有的旧文件。
+
+### GitHub Pages
+
 仓库自带 [GitHub Pages 部署工作流](./.github/workflows/deploy.yml)。推送到 `main` 时会使用 Node.js 22，依次安装依赖、运行测试、构建 `dist/` 并部署。首次部署时，在仓库 **Settings → Pages** 将 Source 设为 **GitHub Actions**。
 
 Vite 使用相对资源路径，因此同一份构建产物可部署到 GitHub Pages 项目路径、其他静态托管服务或任意本地 HTTP 服务器，无需为仓库名修改基址。站点地图只收录产品首页，工作台声明为 `noindex`。
