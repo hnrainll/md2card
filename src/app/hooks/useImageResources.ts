@@ -658,7 +658,7 @@ export function useImageResources({
     setMarkdownAssetImport(null);
     setMarkdownAssetError("");
     setMarkdownAssetBusy(false);
-    replaceLocalImages([], "已清空当前文章与导入图片，排版设置已保留。");
+    replaceLocalImages([], "已清空当前文章与导入图片，卡片设置已保留。");
   };
 
   const prepareMarkdownAssetImport = (nextMarkdown: string, fileName: string) => {

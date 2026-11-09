@@ -104,6 +104,9 @@ legend { margin-bottom: 10px; color: #514c46; font-size: 12px; font-weight: 750;
 .settings-category-content h4 { margin-top: 24px; font-size: 12px; }
 .settings-category-content .field-help { margin-top: 7px; }
 .settings-category-content .secondary-button { max-width: 210px; }
+.advanced-pagination summary { color: #514c46; font-size: 13px; font-weight: 700; line-height: 1.5; cursor: pointer; }
+.advanced-pagination summary:focus-visible { outline: 2px solid #a44235; outline-offset: 5px; border-radius: 3px; }
+.advanced-pagination[open] summary { margin-bottom: 12px; }
 .setting-control-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 210px), 1fr)); gap: 11px; margin-top: 12px; }
 
 .export-dialog-backdrop { position: fixed; inset: 0; z-index: 30; display: grid; place-items: center; padding: 24px; background: rgba(48, 43, 37, .38); backdrop-filter: blur(3px); }

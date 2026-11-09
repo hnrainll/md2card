@@ -4,7 +4,7 @@ const categories: Array<{ id: SettingsCategory; label: string }> = [
   { id: "theme", label: "主题" },
   { id: "canvas", label: "画布" },
   { id: "layout", label: "排版" },
-  { id: "content", label: "内容" },
+  { id: "content", label: "内容样式" },
 ];
 
 export function SettingsCategoryNav({
@@ -15,7 +15,7 @@ export function SettingsCategoryNav({
   onSelect: (category: SettingsCategory) => void;
 }) {
   return (
-    <nav class="settings-category-nav" aria-label="排版分类">
+    <nav class="settings-category-nav" aria-label="卡片设置分类">
       {categories.map((category) => (
         <button
           key={category.id}

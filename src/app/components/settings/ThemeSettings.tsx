@@ -40,29 +40,6 @@ export function ThemeSettings({
           </button>
         ))}
       </div>
-      <h4>代码外观</h4>
-      <div class="segmented code-block-appearance-control">
-        <button
-          type="button"
-          class={config.codeBlockAppearance === "macos" ? "selected" : ""}
-          aria-pressed={config.codeBlockAppearance === "macos"}
-          onClick={() => onConfigChange("codeBlockAppearance", "macos")}
-        >
-          macOS 浅色
-          <br />
-          <small>默认 · 窗口栏与白色代码区</small>
-        </button>
-        <button
-          type="button"
-          class={config.codeBlockAppearance === "theme" ? "selected" : ""}
-          aria-pressed={config.codeBlockAppearance === "theme"}
-          onClick={() => onConfigChange("codeBlockAppearance", "theme")}
-        >
-          跟随主题
-          <br />
-          <small>使用卡片主题的技术面</small>
-        </button>
-      </div>
     </section>
   );
 }

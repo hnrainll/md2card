@@ -60,7 +60,7 @@ export function EditorPane({
             type="button"
             class="clear-article-button"
             onClick={onClear}
-            title="清空文章、已导入图片与图片绑定，保留排版设置"
+            title="清空文章、已导入图片与图片绑定，保留卡片设置"
           >
             清空文章
           </button>

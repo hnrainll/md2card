@@ -279,7 +279,7 @@ export function App() {
     if (
       hasArticleData &&
       !window.confirm(
-        "清空当前文章、已导入图片与图片绑定吗？排版设置会保留。",
+        "清空当前文章、已导入图片与图片绑定吗？卡片设置会保留。",
       )
     )
       return;
@@ -332,7 +332,7 @@ export function App() {
               aria-pressed={activePane === "settings"}
               onClick={() => setActivePane("settings")}
             >
-              排版设置
+              卡片设置
             </button>
           </nav>
           <EditorPane
@@ -380,8 +380,8 @@ export function App() {
           >
             <div class="panel-heading compact">
               <div>
-                <span class="eyebrow">排版</span>
-                <h2>阅读设置</h2>
+                <span class="eyebrow">自定义</span>
+                <h2>卡片设置</h2>
               </div>
             </div>
             <SettingsCategoryNav

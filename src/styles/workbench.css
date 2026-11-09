@@ -186,7 +186,10 @@
 :root[data-ui-theme="dark"] legend,
 :root[data-ui-theme="dark"] .settings-category-content h3,
 :root[data-ui-theme="dark"] .settings-category-content h4,
+:root[data-ui-theme="dark"] .advanced-pagination summary,
 :root[data-ui-theme="dark"] .card-theme-option strong { color: #f0effa; }
+
+:root[data-ui-theme="dark"] .advanced-pagination summary:focus-visible { outline-color: #c3b8ff; }
 
 :root[data-ui-theme="dark"] .editor-drop-zone {
   border-color: #3c3c5a;
