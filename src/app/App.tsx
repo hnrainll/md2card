@@ -206,7 +206,8 @@ export function App() {
       imageBindingOverrides,
     },
     onRestore: (draft) => {
-      if (!draft?.markdown) return;
+      // An empty document is a saved draft too; retain its card settings.
+      if (!draft) return;
       setMarkdown(draft.markdown);
       setConfig({
         ...DEFAULT_CONFIG,
