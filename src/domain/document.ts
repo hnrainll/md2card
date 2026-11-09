@@ -1,3 +1,5 @@
+import type { CardFont } from './fonts';
+
 export type Inline =
   | { kind: 'text'; value: string }
   | { kind: 'strong'; children: Inline[] }
@@ -47,6 +49,7 @@ export interface PageCover {
 }
 
 export interface LayoutConfig {
+  cardFont: CardFont;
   ratio: CanvasRatio;
   density: Density;
   bodyFontSize: number;
@@ -74,6 +77,7 @@ export interface LayoutConfig {
 }
 
 export const DEFAULT_CONFIG: LayoutConfig = {
+  cardFont: 'classic',
   ratio: '3:4',
   density: 'balanced',
   bodyFontSize: 30,

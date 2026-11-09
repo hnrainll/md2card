@@ -104,6 +104,14 @@ legend { margin-bottom: 10px; color: #514c46; font-size: 12px; font-weight: 750;
 .settings-category-content h4 { margin-top: 24px; font-size: 12px; }
 .settings-category-content .field-help { margin-top: 7px; }
 .settings-category-content .secondary-button { max-width: 210px; }
+.card-font-choices { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 135px), 1fr)); gap: 8px; margin-top: 12px; }
+.card-font-option { display: grid; gap: 6px; padding: 12px 10px; border: 1px solid #ded8d0; border-radius: 10px; color: #514c46; background: #fffefa; text-align: left; }
+.card-font-option:hover { border-color: #c9bdb2; }
+.card-font-option.selected { border-color: #db776b; background: #fff2ee; }
+.card-font-option:focus-visible { outline: 2px solid #a44235; outline-offset: 3px; }
+.card-font-sample { font-size: 19px; line-height: 1.5; }
+.card-font-option strong { font-size: 12px; }
+.card-font-option small { color: #8a8178; font-size: 10px; line-height: 1.5; }
 .advanced-pagination summary { color: #514c46; font-size: 13px; font-weight: 700; line-height: 1.5; cursor: pointer; }
 .advanced-pagination summary:focus-visible { outline: 2px solid #a44235; outline-offset: 5px; border-radius: 3px; }
 .advanced-pagination[open] summary { margin-bottom: 12px; }

@@ -43,9 +43,9 @@
   --cover-decoration-border: transparent;
   --font-code: "JetBrains Mono Variable", "JetBrains Mono", "SFMono-Regular", Consolas, "Liberation Mono", monospace;
   color: var(--theme-on-surface);
-  /* Latin glyphs use Times New Roman first; CJK glyphs fall back to the
-   * bundled Noto Sans SC. Code and KaTeX declare their own families below. */
-  font-family: "Times New Roman", "Nimbus Roman No9 L", "Liberation Serif", "Noto Sans SC Variable", "Noto Sans SC", "Microsoft YaHei", serif;
+  /* Measurement and export use the same selected reading font.
+   * Code and KaTeX retain their dedicated families. */
+  font-family: var(--font-card);
 }
 
 /* Shared reading grammar: hierarchy comes from roles and rhythm, never from a

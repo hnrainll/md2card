@@ -1,5 +1,6 @@
 import { render } from 'preact';
 import '@fontsource-variable/noto-sans-sc/wght.css';
+import '@fontsource-variable/noto-serif-sc/wght.css';
 import '@fontsource-variable/jetbrains-mono/wght.css';
 import 'katex/dist/katex.min.css';
 import './styles/app.css';

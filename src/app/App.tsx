@@ -6,6 +6,7 @@ import {
 } from "preact/hooks";
 import type { LayoutConfig } from "../domain/document";
 import { DEFAULT_CONFIG, DENSITY_PRESETS } from "../domain/document";
+import { normalizeCardFont } from "../domain/fonts";
 import { STARTER_MARKDOWN } from "../data/starter-markdown";
 import { MeasureStage } from "../renderer/MeasureStage";
 import {
@@ -210,6 +211,7 @@ export function App() {
       setConfig({
         ...DEFAULT_CONFIG,
         ...(draft.config ?? {}),
+        cardFont: normalizeCardFont(draft.config?.cardFont),
         cardTheme: normalizeCardTheme(draft.config?.cardTheme),
         codeBlockAppearance: normalizeCodeBlockAppearance(
           draft.config?.codeBlockAppearance,

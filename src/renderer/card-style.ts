@@ -1,4 +1,5 @@
 import type { LayoutConfig } from '../domain/document';
+import { cardFontFamily } from '../domain/fonts';
 import { canvasHeight, cardBottomPadding, cardContentWidth } from '../domain/card-metrics';
 
 export { canvasHeight, cardBottomPadding, cardContentWidth };
@@ -13,6 +14,7 @@ function headingSizes(config: LayoutConfig): { h2: number; h3: number } {
 export function cardStyle(config: LayoutConfig): Record<string, string> {
   const headings = headingSizes(config);
   return {
+    '--font-card': cardFontFamily(config.cardFont),
     '--card-height': `${canvasHeight(config.ratio)}px`,
     '--card-horizontal-padding': `${config.cardHorizontalPadding}px`,
     '--card-top-padding': `${config.cardVerticalPadding}px`,
