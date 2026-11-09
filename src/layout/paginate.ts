@@ -1,5 +1,5 @@
 import type { ArticleDocument, Block, Diagnostic, LayoutConfig, PageCover, PageFragment, PagePlan, PagePlanPage } from '../domain/document';
-import { canvasHeight, cardBottomPadding } from '../domain/card-metrics';
+import { canvasHeight, cardBottomPadding, authorHeaderHeight } from '../domain/card-metrics';
 import { inlineText } from '../parser/parse-markdown';
 
 const CONTENT_SAFETY_BUFFER = 53;
@@ -262,11 +262,14 @@ export function createPagePlan(
   }
   let current: PageFragment[] = [];
   let currentCover = cover?.mode === 'integrated' ? cover : undefined;
-  let used = currentCover ? (measurements[currentCover.id] ?? fallbackCoverHeight(currentCover, config)) : 0;
+  // Only the first exported image carries the author header. A standalone
+  // cover already owns that first image, so body pages retain full capacity.
+  let used = (pages.length === 0 ? authorHeaderHeight(config) : 0)
+    + (currentCover ? (measurements[currentCover.id] ?? fallbackCoverHeight(currentCover, config)) : 0);
   let section = '';
 
   const flush = () => {
-    if (!current.length && !currentCover) return;
+    if (!current.length && !currentCover && used === 0) return;
     pages.push({ id: `page-${pages.length + 1}`, index: pages.length, section, cover: currentCover, fragments: current, estimatedHeight: used });
     current = [];
     currentCover = undefined;
@@ -283,7 +286,7 @@ export function createPagePlan(
     if (block.kind === 'heading' && block.depth <= 2) section = inlineText(block.children);
 
     const height = fragmentHeight(fragment, config, measurements);
-    const pageHasContent = current.length > 0 || Boolean(currentCover);
+    const pageHasContent = used > 0;
     let beforeSpacing = current.length ? beforeSpacingFor(block, config) : 0;
     if (block.kind === 'heading') {
       // An in-document H1 is a hard document/part boundary. The first H1 is

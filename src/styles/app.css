@@ -104,6 +104,10 @@ legend { margin-bottom: 10px; color: #514c46; font-size: 12px; font-weight: 750;
 .settings-category-content h4 { margin-top: 24px; font-size: 12px; }
 .settings-category-content .field-help { margin-top: 7px; }
 .settings-category-content .secondary-button { max-width: 210px; }
+.author-avatar-control { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin: 12px 0; }
+.author-avatar-control img { width: 48px; height: 48px; border-radius: 50%; object-fit: cover; }
+.author-avatar-control .secondary-button { width: auto; margin: 0; padding: 6px 10px; }
+.author-avatar-error { color: #a74438; font-size: 12px; }
 .card-font-choices { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 135px), 1fr)); gap: 8px; margin-top: 12px; }
 .card-font-option { display: grid; gap: 6px; padding: 12px 10px; border: 1px solid #ded8d0; border-radius: 10px; color: #514c46; background: #fffefa; text-align: left; }
 .card-font-option:hover { border-color: #c9bdb2; }

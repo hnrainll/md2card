@@ -3,6 +3,7 @@ import type { LayoutConfig, PagePlanPage } from '../domain/document';
 import type { ImageResourceIndex } from '../resources/image-resources';
 import { cardStyle } from './card-style';
 import { CardCover } from './CardCover';
+import { CardAuthor } from './CardAuthor';
 import { BlockView } from './RichText';
 
 export const CardPage = forwardRef<HTMLElement, {
@@ -17,6 +18,7 @@ export const CardPage = forwardRef<HTMLElement, {
   const standaloneCover = page.cover?.mode === 'standalone';
   return (
     <article ref={ref} class={`card-page theme-${config.cardTheme} density-${config.density} code-appearance-${config.codeBlockAppearance}`} style={style} data-card-page={page.index + 1}>
+      {page.index === 0 && <CardAuthor config={config} />}
       <main class={`card-content${standaloneCover ? ' cover-only' : ''}`}>
         {page.cover && <CardCover cover={page.cover} />}
         {page.fragments.map((fragment) => (

@@ -1,4 +1,4 @@
-import { zipSync, strToU8 } from 'fflate';
+import { zipSync } from 'fflate';
 import { getFontEmbedCSS, toBlob } from 'html-to-image';
 
 const PNG_SIGNATURE = [0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a];
@@ -59,7 +59,6 @@ export async function exportCards({
     await new Promise<void>((resolve) => window.setTimeout(resolve, 0));
   }
 
-  files['README.txt'] = strToU8('由 Md2Card 在本地浏览器生成。每个 .png 已通过 PNG 文件头校验。\n');
   const archive = zipSync(files, { level: 6 });
   download(new Blob([archive], { type: 'application/zip' }), `${filename || 'md2card-cards'}.zip`);
 }

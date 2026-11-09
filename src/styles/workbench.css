@@ -268,6 +268,7 @@
 :root[data-ui-theme="dark"] .card-font-option.selected { border-color: #a99aff; background: #343052; }
 :root[data-ui-theme="dark"] .card-font-option small { color: #bcb5d0; }
 :root[data-ui-theme="dark"] .card-font-option:focus-visible { outline-color: #c3b8ff; }
+:root[data-ui-theme="dark"] .author-avatar-error { color: #ffb6aa; }
 :root[data-ui-theme="dark"] .range-label input,
 :root[data-ui-theme="dark"] .check-label input { accent-color: var(--workbench-selected-border); }
 :root[data-ui-theme="dark"] .preview-panel { background: #111119; }

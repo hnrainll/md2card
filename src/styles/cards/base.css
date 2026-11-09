@@ -50,6 +50,21 @@
 
 /* Shared reading grammar: hierarchy comes from roles and rhythm, never from a
  * different decorative device for every Markdown block. */
+.card-author {
+  display: flex;
+  flex: none;
+  align-items: center;
+  gap: 32px;
+  height: var(--author-header-height);
+  padding-bottom: 56px;
+  overflow: hidden;
+  color: var(--theme-on-surface);
+}
+.card-author-avatar { flex: none; width: 104px; height: 104px; border-radius: 50%; object-fit: cover; }
+.card-author-info { min-width: 0; }
+.card-author-name { overflow: hidden; white-space: nowrap; text-overflow: ellipsis; font-size: 36px; font-weight: 700; line-height: 1.5; }
+.card-author-date { display: block; color: var(--theme-on-surface-variant); font-size: 26px; line-height: 1.5; }
+
 .card-page .card-content,
 .measure-stage .card-content {
   color: var(--theme-on-surface);

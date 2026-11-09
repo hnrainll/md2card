@@ -2,6 +2,12 @@ import type { LayoutConfig } from './document';
 
 export const canvasHeight = (ratio: LayoutConfig['ratio']) => (ratio === '3:4' ? 1440 : 1620);
 
+export const AUTHOR_HEADER_HEIGHT = 160;
+
+export function authorHeaderHeight(config: LayoutConfig): number {
+  return config.showAuthor ? AUTHOR_HEADER_HEIGHT : 0;
+}
+
 export function cardBottomPadding(config: LayoutConfig): number {
   // Reserve a little less at the bottom because the optional page number lives
   // there. Keep a safe minimum when the user chooses the smallest value.

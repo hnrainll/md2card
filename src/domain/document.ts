@@ -49,6 +49,11 @@ export interface PageCover {
 }
 
 export interface LayoutConfig {
+  showAuthor: boolean;
+  authorName: string;
+  authorAvatar: string;
+  /** Empty uses today's local date; otherwise YYYY-MM-DD. */
+  authorDate: string;
   cardFont: CardFont;
   ratio: CanvasRatio;
   density: Density;
@@ -77,6 +82,10 @@ export interface LayoutConfig {
 }
 
 export const DEFAULT_CONFIG: LayoutConfig = {
+  showAuthor: false,
+  authorName: '',
+  authorAvatar: '',
+  authorDate: '',
   cardFont: 'classic',
   ratio: '3:4',
   density: 'balanced',
