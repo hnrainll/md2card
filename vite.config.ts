@@ -20,6 +20,13 @@ export default defineConfig({
         home: resolve(__dirname, 'index.html'),
         app: resolve(__dirname, 'app/index.html'),
       },
+      output: {
+        // KaTeX is large and changes independently of the workbench. Keep it
+        // in a cacheable chunk while the editor shell stays below Vite's size warning.
+        manualChunks(id) {
+          if (id.replaceAll('\\', '/').includes('/node_modules/katex/')) return 'katex';
+        },
+      },
     },
   },
 });
