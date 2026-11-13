@@ -125,7 +125,9 @@ legend { margin-bottom: 10px; color: #514c46; font-size: 12px; font-weight: 750;
 .export-dialog { width: min(560px, 100%); max-height: min(780px, calc(100dvh - 48px)); overflow: auto; padding: 25px; border: 1px solid #e5ddd3; border-radius: 16px; color: #45403a; background: #fffefa; box-shadow: 0 24px 80px rgba(42, 35, 29, .28); }
 .export-dialog-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; }
 .export-dialog-header h2 { margin: 2px 0 0; color: #302c27; font-size: 22px; letter-spacing: -.025em; }
-.dialog-close { width: 32px; height: 32px; flex: none; border: 1px solid #ded8d0; border-radius: 8px; color: #736b62; background: #fffefa; font-size: 23px; font-weight: 400; line-height: 1; }
+.dialog-close { position: relative; width: 32px; height: 32px; flex: none; padding: 0; border: 1px solid #ded8d0; border-radius: 8px; color: #736b62; background: #fffefa; font-size: 0; }
+.dialog-close::before, .dialog-close::after { content: ''; position: absolute; top: 50%; left: 50%; width: 17px; height: 2px; border-radius: 1px; background: currentColor; transform: translate(-50%, -50%) rotate(45deg); }
+.dialog-close::after { transform: translate(-50%, -50%) rotate(-45deg); }
 .export-summary { margin: 16px 0 20px; color: #837a71; font-size: 13px; }
 .export-quality h3, .export-preflight h3 { margin: 0 0 9px; color: #514c46; font-size: 13px; }
 .export-quality { display: grid; gap: 9px; }
