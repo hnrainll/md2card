@@ -63,7 +63,7 @@
 .card-author-avatar { flex: none; width: 104px; height: 104px; border-radius: 50%; object-fit: cover; }
 .card-author-info { min-width: 0; }
 .card-author-name { overflow: hidden; white-space: nowrap; text-overflow: ellipsis; font-size: 36px; font-weight: 700; line-height: 1.5; }
-.card-author-date { display: block; color: var(--theme-on-surface-variant); font-size: 26px; line-height: 1.5; }
+.card-author-date { display: block; color: var(--theme-on-surface-variant); font-size: 26px; line-height: 1.5; white-space: nowrap; }
 
 .card-page .card-content,
 .measure-stage .card-content {
