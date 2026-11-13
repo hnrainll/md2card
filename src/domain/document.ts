@@ -148,6 +148,8 @@ export interface PageFragment {
   block: Block;
   beforeSpacing?: number;
   continuation?: { index: number; total: number; label: string };
+  /** Visual lines occupied by this slice of a measured paragraph. */
+  lineRange?: { start: number; end: number };
 }
 
 export interface PagePlanPage {

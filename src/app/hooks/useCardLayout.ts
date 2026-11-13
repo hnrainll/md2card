@@ -20,6 +20,7 @@ export function useCardLayout({
   sourceFileName: string;
 }) {
   const [measurements, setMeasurements] = useState<Record<string, number>>({});
+  const [paragraphLines, setParagraphLines] = useState<Record<string, number[]>>({});
   const article = useMemo(() => parseMarkdown(markdown), [markdown]);
   const inferredTitle =
     article.title.trim() || filenameStem(sourceFileName) || "未命名笔记";
@@ -43,10 +44,10 @@ export function useCardLayout({
     [articleName, config.coverKicker, config.coverMode, config.coverSubtitle],
   );
   const pagePlan = useMemo(
-    () => createPagePlan(article, config, measurements, cover),
-    [article, config, measurements, cover],
+    () => createPagePlan(article, config, measurements, cover, paragraphLines),
+    [article, config, measurements, cover, paragraphLines],
   );
-  const acceptMeasure = useCallback((next: Record<string, number>) => {
+  const acceptMeasure = useCallback((next: Record<string, number>, lines: Record<string, number[]>) => {
     setMeasurements((previous) => {
       const previousKeys = Object.keys(previous);
       const nextKeys = Object.keys(next);
@@ -57,8 +58,9 @@ export function useCardLayout({
         return previous;
       return next;
     });
+    setParagraphLines((previous) => JSON.stringify(previous) === JSON.stringify(lines) ? previous : lines);
   }, []);
-  const invalidateLayout = useCallback(() => setMeasurements({}), []);
+  const invalidateLayout = useCallback(() => { setMeasurements({}); setParagraphLines({}); }, []);
 
   return {
     acceptMeasure,

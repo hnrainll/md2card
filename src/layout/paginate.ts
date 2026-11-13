@@ -1,4 +1,4 @@
-import type { ArticleDocument, Block, Diagnostic, LayoutConfig, PageCover, PageFragment, PagePlan, PagePlanPage } from '../domain/document';
+import type { ArticleDocument, Block, Diagnostic, Inline, LayoutConfig, PageCover, PageFragment, PagePlan, PagePlanPage } from '../domain/document';
 import { canvasHeight, cardBottomPadding, authorHeaderHeight } from '../domain/card-metrics';
 import { inlineText } from '../parser/parse-markdown';
 
@@ -56,34 +56,13 @@ function cloneBlock(block: Block, id: string): Block {
   return { ...block, id } as Block;
 }
 
-function splitText(text: string, maxCharacters: number): string[] {
-  if (text.length <= maxCharacters) return [text];
-  const segments = text.split(/(?<=[。！？；;.!?])\s*|(?<=，|、|：|,|:)\s*/).filter(Boolean);
-  const chunks: string[] = [];
-  let current = '';
-  for (const segment of segments) {
-    if (current && current.length + segment.length > maxCharacters) {
-      chunks.push(current);
-      current = segment;
-    } else {
-      current += segment;
-    }
-  }
-  if (current) chunks.push(current);
-  if (chunks.length > 1) return chunks;
-
-  const hardChunks: string[] = [];
-  for (let start = 0; start < text.length; start += maxCharacters) hardChunks.push(text.slice(start, start + maxCharacters));
-  return hardChunks;
-}
-
 function splitOversizeBlock(
   block: Block,
   blockHeight: number,
   available: number,
   diagnostics: Diagnostic[],
 ): PageFragment[] {
-  if (blockHeight <= available || block.kind === 'heading' || block.kind === 'pageBreak') {
+  if (blockHeight <= available || block.kind === 'heading' || block.kind === 'pageBreak' || block.kind === 'paragraph') {
     return [{ id: block.id, sourceId: block.id, block }];
   }
 
@@ -117,27 +96,6 @@ function splitOversizeBlock(
     });
   }
 
-  if (block.kind === 'paragraph') {
-    const text = inlineText(block.children);
-    const parts = splitText(text, Math.max(100, Math.floor((text.length * available) / blockHeight)));
-    if (parts.length > 1) {
-      diagnostics.push({
-        level: 'warning',
-        message: '超长段落已按句子续页；续页中的复杂行内样式会降级为正文文本。',
-        blockId: block.id,
-      });
-      return parts.map((part, index) => {
-        const fragment = cloneBlock({ id: `${block.id}-paragraph-${index}`, kind: 'paragraph', children: [{ kind: 'text', value: part }] }, `${block.id}-paragraph-${index}`);
-        return {
-          id: fragment.id,
-          sourceId: block.id,
-          block: fragment,
-          continuation: { index: index + 1, total: parts.length, label: `正文续 ${index + 1}/${parts.length}` },
-        };
-      });
-    }
-  }
-
   diagnostics.push({
     level: 'warning',
     message: block.kind === 'math' ? '公式过高，已单独放置并采用公式缩放；建议手动改为 aligned 多行公式。' : '该块过高，已独占一页以避免内容裁切。',
@@ -148,10 +106,32 @@ function splitOversizeBlock(
 
 function fragmentHeight(fragment: PageFragment, config: LayoutConfig, measurements: Record<string, number>): number {
   const base = measurements[fragment.id] ?? measurements[fragment.sourceId] ?? fallbackHeight(fragment.block, config);
+  if (fragment.lineRange) return (fragment.lineRange.end - fragment.lineRange.start) * config.bodyFontSize * config.bodyLineHeight;
   if (!fragment.continuation) return base;
   if (fragment.block.kind === 'code') return 78 + fragment.block.value.split('\n').length * 35;
   if (fragment.block.kind === 'table') return 92 + fragment.block.rows.length * 52;
   return base;
+}
+
+function inlineLength(nodes: Inline[]): number {
+  return nodes.reduce((sum, node) => sum + (node.kind === 'text' || node.kind === 'inlineCode' ? node.value.length : 'children' in node ? inlineLength(node.children) : 0), 0);
+}
+
+/** Slice the inline tree without flattening emphasis, links, or code. */
+function sliceInline(nodes: Inline[], start: number, end: number): Inline[] {
+  const result: Inline[] = [];
+  let position = 0;
+  for (const node of nodes) {
+    const length = node.kind === 'text' || node.kind === 'inlineCode' ? node.value.length : 'children' in node ? inlineLength(node.children) : 0;
+    const from = Math.max(0, start - position);
+    const to = Math.min(length, end - position);
+    if (from < to) {
+      if (node.kind === 'text' || node.kind === 'inlineCode') result.push({ ...node, value: node.value.slice(from, to) });
+      else if ('children' in node) result.push({ ...node, children: sliceInline(node.children, from, to) });
+    }
+    position += length;
+  }
+  return result;
 }
 
 function fallbackCoverHeight(cover: PageCover, config: LayoutConfig): number {
@@ -246,6 +226,7 @@ export function createPagePlan(
   config: LayoutConfig,
   measurements: Record<string, number>,
   cover?: PageCover,
+  paragraphLines: Record<string, number[]> = {},
 ): PagePlan {
   const diagnostics: Diagnostic[] = [...article.diagnostics];
   // Density changes rendered block heights, not the physical height of a
@@ -305,6 +286,32 @@ export function createPagePlan(
         if (capacity - used < required) {
           flush();
           beforeSpacing = 0;
+        }
+      }
+    }
+
+    if (block.kind === 'paragraph' && used + beforeSpacing + height > capacity) {
+      const lines = paragraphLines[fragment.sourceId];
+      if (lines && lines.length > 1) {
+        const start = fragment.lineRange?.start ?? 0;
+        const end = fragment.lineRange?.end ?? lines.length;
+        const lineHeight = config.bodyFontSize * config.bodyLineHeight;
+        const fittingLines = Math.floor((capacity - used - beforeSpacing) / lineHeight);
+        if (fittingLines <= 0) {
+          flush();
+          index -= 1;
+          continue;
+        }
+        if (start + fittingLines < end) {
+          const splitLine = start + fittingLines;
+          const offset = lines[splitLine] - lines[start];
+          const first = { ...fragment, id: `${fragment.sourceId}-lines-${start}-${splitLine}`, block: { ...block, id: `${fragment.sourceId}-lines-${start}-${splitLine}`, children: sliceInline(block.children, 0, offset) }, lineRange: { start, end: splitLine } };
+          const rest = { ...fragment, id: `${fragment.sourceId}-lines-${splitLine}-${end}`, block: { ...block, id: `${fragment.sourceId}-lines-${splitLine}-${end}`, children: sliceInline(block.children, offset, inlineLength(block.children)) }, lineRange: { start: splitLine, end } };
+          current.push(beforeSpacing ? { ...first, beforeSpacing } : first);
+          used += beforeSpacing + fragmentHeight(first, config, measurements);
+          flush();
+          expanded.splice(index + 1, 0, rest);
+          continue;
         }
       }
     }

@@ -10,7 +10,7 @@ export function MeasureStage({ article, config, cover, resources, onMeasure }: {
   config: LayoutConfig;
   cover?: PageCover;
   resources?: ImageResourceIndex;
-  onMeasure: (measurements: Record<string, number>) => void;
+  onMeasure: (measurements: Record<string, number>, paragraphLines: Record<string, number[]>) => void;
 }) {
   const stageRef = useRef<HTMLDivElement>(null);
   useEffect(() => {
@@ -24,11 +24,32 @@ export function MeasureStage({ article, config, cover, resources, onMeasure }: {
       await new Promise<void>((resolve) => requestAnimationFrame(() => requestAnimationFrame(() => resolve())));
       if (cancelled || !stageRef.current) return;
       const next: Record<string, number> = {};
+      const paragraphLines: Record<string, number[]> = {};
       stageRef.current.querySelectorAll<HTMLElement>('[data-measure-id]').forEach((element) => {
         const computed = getComputedStyle(element);
-        next[element.dataset.measureId ?? ''] = element.getBoundingClientRect().height + Number.parseFloat(computed.marginBottom || '0');
+        const id = element.dataset.measureId ?? '';
+        next[id] = element.getBoundingClientRect().height + Number.parseFloat(computed.marginBottom || '0');
+        const paragraph = element.querySelector(':scope > .content-block.block-paragraph > p');
+        if (!paragraph || paragraph.querySelector('.inline-math, br')) return;
+        const walker = document.createTreeWalker(paragraph, NodeFilter.SHOW_TEXT);
+        const starts = [0];
+        const range = document.createRange();
+        let offset = 0;
+        let lastTop: number | undefined;
+        while (walker.nextNode()) {
+          const node = walker.currentNode;
+          for (let index = 0; index < (node.textContent?.length ?? 0); index += 1) {
+            range.setStart(node, index);
+            range.setEnd(node, index + 1);
+            const top = range.getBoundingClientRect().top;
+            if (lastTop !== undefined && Math.abs(top - lastTop) > config.bodyFontSize * config.bodyLineHeight * 0.5) starts.push(offset);
+            lastTop = top;
+            offset += 1;
+          }
+        }
+        if (offset > 0) paragraphLines[id] = starts;
       });
-      onMeasure(next);
+      onMeasure(next, paragraphLines);
     };
     void collect();
     return () => { cancelled = true; };

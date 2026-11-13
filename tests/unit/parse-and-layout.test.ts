@@ -5,6 +5,7 @@ import { DEFAULT_CONFIG, DENSITY_PRESETS } from '../../src/domain/document';
 import { STARTER_MARKDOWN } from '../../src/data/starter-markdown';
 import { createPagePlan } from '../../src/layout/paginate';
 import { parseMarkdown } from '../../src/parser/parse-markdown';
+import { inlineText } from '../../src/parser/parse-markdown';
 import {
   articleImageUrls,
   buildImageResourceIndex,
@@ -196,6 +197,23 @@ describe('技术 Markdown 解析', () => {
     });
     expect(wraps.pages).toHaveLength(2);
     expect(wraps.pages[1].fragments[0].beforeSpacing).toBeUndefined();
+  });
+
+  it('段落在页尾按实测行续页，并保留行内格式与全部文字', () => {
+    const article = parseMarkdown('# 标题\n\n前置正文。\n\n**加粗文字**后续段落继续延伸到下一张卡片。');
+    const [before, paragraph] = article.blocks;
+    if (paragraph.kind !== 'paragraph') throw new Error('测试前提：第二块应为段落');
+    const original = inlineText(paragraph.children);
+    const plan = createPagePlan(article, DEFAULT_CONFIG, {
+      [before.id]: 1_100,
+      [paragraph.id]: 5 * DEFAULT_CONFIG.bodyFontSize * DEFAULT_CONFIG.bodyLineHeight,
+    }, undefined, { [paragraph.id]: [0, 5, 10, 15, 20] });
+    const pieces = plan.pages.flatMap((page) => page.fragments).filter((fragment) => fragment.sourceId === paragraph.id);
+    expect(plan.pages).toHaveLength(2);
+    expect(plan.pages[0].fragments).toHaveLength(2);
+    expect(pieces).toHaveLength(2);
+    expect(pieces.map((piece) => piece.block.kind === 'paragraph' ? inlineText(piece.block.children) : '').join('')).toBe(original);
+    expect(pieces[0].block.kind === 'paragraph' && pieces[0].block.children[0].kind).toBe('strong');
   });
 
   it('密度只改变块的排版，不放大物理卡片高度', () => {
